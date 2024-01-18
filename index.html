@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Country Information</title>
+  <style>
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 200px;
+      height: 250px;
+      margin: 10px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      cursor: pointer; /* Add cursor style for better indication */
+    }
+    .card img {
+      width: 100px;
+      height: 60px;
+      margin-bottom: 10px;
+    }
+    .card h3 {
+      margin-bottom: 5px;
+    }
+    .card p {
+      font-size: 14px;
+      text-align: center;
+      display: none; /* Initially hide additional information */
+    }
+    body{
+        background-color: rgb(142, 136, 147);
+
+    }
+  </style>
+</head>
+<body>
+  <div class="card-container" id="cardContainer"></div>
+
+  <script>
+    const cardContainer = document.getElementById('cardContainer');
+  
+    fetch('https://restcountries.com/v3.1/all')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Loop through the country data and create a card for each country
+        data.forEach(country => {
+          const card = document.createElement('div');
+          card.classList.add('card');
+  
+          const flagImg = document.createElement('img');
+          flagImg.src = country.flags.svg;
+          flagImg.alt = `${country.name.common} Flag`;
+  
+          const nameHeading = document.createElement('h3');
+          nameHeading.innerText = country.name.common;
+  
+          const subregionPara = document.createElement('p');
+          subregionPara.innerText = `Subregion: ${country.subregion || 'N/A'}`;
+  
+          const regionPara = document.createElement('p');
+          regionPara.innerText = `Region: ${country.region || 'N/A'}`;
+  
+          const borderPara = document.createElement('p');
+          borderPara.innerText = `Borders: ${country.borders ? country.borders.join(', ') : 'N/A'}`;
+  
+          const currenciesPara = document.createElement('p');
+          currenciesPara.innerText = `Currencies: ${country.currencies ? Object.values(country.currencies).map(curr => curr.name).join(', ') : 'N/A'}`;
+  
+          card.appendChild(flagImg);
+          card.appendChild(nameHeading);
+          card.appendChild(subregionPara);
+          card.appendChild(regionPara);
+          card.appendChild(borderPara);
+          card.appendChild(currenciesPara);
+  
+          card.addEventListener('click', () => {
+            // Toggle the display of additional information
+            [subregionPara, regionPara, borderPara, currenciesPara].forEach(para => {
+              para.style.display = para.style.display === 'none' ? 'block' : 'none';
+            });
+          });
+  
+          cardContainer.appendChild(card);
+        });
+      })
+      .catch(error => {
+        console.error('Error:', error.message);
+        const errorMessage = document.createElement('p');
+        errorMessage.innerText = 'Failed to fetch country data.';
+        cardContainer.appendChild(errorMessage);
+      });
+  </script>
+</body>
+</html>
